@@ -10,6 +10,7 @@ import getPageRef from './getPageRef';
 import createBufferRootWithAcroform from './createBufferRootWithAcroform';
 import createBufferPageWithAnnotation from './createBufferPageWithAnnotation';
 import createBufferTrailer from './createBufferTrailer';
+import getSigBuffer from './getSigBuffer';
 
 const isContainBufferRootWithAcroform = (pdf) => {
     const bufferRootWithAcroformRefRegex = /\/AcroForm\s+(\d+\s\d+\sR)/g;
@@ -35,6 +36,7 @@ const plainAddPlaceholder = ({
     location = 'Location from p12',
     signatureLength = DEFAULT_SIGNATURE_LENGTH,
     subFilter = SUBFILTER_ADOBE_PKCS7_DETACHED,
+    rect = [0, 0, 0, 0],
 }) => {
     let pdf = removeTrailingNewLine(pdfBuffer);
     const info = readPdf(pdf);
@@ -54,7 +56,7 @@ const plainAddPlaceholder = ({
                 pdf,
                 Buffer.from('\n'),
                 Buffer.from(`${index} 0 obj\n`),
-                Buffer.from(PDFObject.convert(input)),
+                input.Type === 'Sig'  ? getSigBuffer(input) : Buffer.from(PDFObject.convert(input)),
                 Buffer.from('\nendobj\n'),
             ]);
             return new PDFKitReferenceMock(info.xref.maxIndex);
@@ -86,6 +88,7 @@ const plainAddPlaceholder = ({
         location,
         signatureLength,
         subFilter,
+        rect,
     });
 
     if (!isContainBufferRootWithAcroform(pdf)) {

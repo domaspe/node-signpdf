@@ -19,6 +19,7 @@ const pdfkitAddPlaceholder = ({
     signatureLength = DEFAULT_SIGNATURE_LENGTH,
     byteRangePlaceholder = DEFAULT_BYTE_RANGE_PLACEHOLDER,
     subFilter = SUBFILTER_ADOBE_PKCS7_DETACHED,
+    rect = [0, 0, 0, 0],
 }) => {
     /* eslint-disable no-underscore-dangle,no-param-reassign */
     // Generate the signature placeholder
@@ -86,7 +87,7 @@ const pdfkitAddPlaceholder = ({
         Type: 'Annot',
         Subtype: 'Widget',
         FT: 'Sig',
-        Rect: [0, 0, 0, 0],
+        Rect: rect,
         V: signature,
         T: new String(signatureName + (fieldIds.length + 1)), // eslint-disable-line no-new-wrappers
         F: 4,

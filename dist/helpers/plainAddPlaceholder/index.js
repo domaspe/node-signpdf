@@ -27,6 +27,8 @@ var _createBufferPageWithAnnotation = _interopRequireDefault(require("./createBu
 
 var _createBufferTrailer = _interopRequireDefault(require("./createBufferTrailer"));
 
+var _getSigBuffer = _interopRequireDefault(require("./getSigBuffer"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const isContainBufferRootWithAcroform = pdf => {
@@ -52,7 +54,8 @@ const plainAddPlaceholder = ({
   name = 'Name from p12',
   location = 'Location from p12',
   signatureLength = _const.DEFAULT_SIGNATURE_LENGTH,
-  subFilter = _const.SUBFILTER_ADOBE_PKCS7_DETACHED
+  subFilter = _const.SUBFILTER_ADOBE_PKCS7_DETACHED,
+  rect = [0, 0, 0, 0]
 }) => {
   let pdf = (0, _removeTrailingNewLine.default)(pdfBuffer);
   const info = (0, _readPdf.default)(pdf);
@@ -65,7 +68,7 @@ const plainAddPlaceholder = ({
       const index = additionalIndex != null ? additionalIndex : info.xref.maxIndex;
       addedReferences.set(index, pdf.length + 1); // + 1 new line
 
-      pdf = Buffer.concat([pdf, Buffer.from('\n'), Buffer.from(`${index} 0 obj\n`), Buffer.from(_pdfobject.default.convert(input)), Buffer.from('\nendobj\n')]);
+      pdf = Buffer.concat([pdf, Buffer.from('\n'), Buffer.from(`${index} 0 obj\n`), input.Type === 'Sig' ? (0, _getSigBuffer.default)(input) : Buffer.from(_pdfobject.default.convert(input)), Buffer.from('\nendobj\n')]);
       return new _pdfkitReferenceMock.default(info.xref.maxIndex);
     },
     page: {
@@ -90,7 +93,8 @@ const plainAddPlaceholder = ({
     name,
     location,
     signatureLength,
-    subFilter
+    subFilter,
+    rect
   });
 
   if (!isContainBufferRootWithAcroform(pdf)) {
